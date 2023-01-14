@@ -44,7 +44,8 @@
             axilInit.axilMasonary();
             axilInit.counterUpActivation();
             axilInit.scrollSmoth();
-           
+            axilInit.cartStorage();
+            axilInit.updateCart()
            
         },
 
@@ -215,8 +216,8 @@
         },
 
         quantityRanger: function() {
-            $('.pro-qty').prepend('<span class="dec qtybtn">-</span>');
-            $('.pro-qty').append('<span class="inc qtybtn">+</span>');
+            // $('.pro-qty').prepend('<span class="dec qtybtn">-</span>');
+            // $('.pro-qty').append('<span class="inc qtybtn">+</span>');
             $('.qtybtn').on('click', function() {
                 var $button = $(this);
                 var oldValue = $button.parent().find('input').val();
@@ -985,6 +986,55 @@
                 event.preventDefault();
             });
         },
+        cartStorage: function(){
+            $('.product-toCart').on('click', function(e) {
+                let new_product = $(this).data();
+                let cart_storage = localStorage.getItem('cart');
+                let parsed_cart = cart_storage ? JSON.parse(cart_storage) : [];
+                let filter = parsed_cart.filter(product => product.id == new_product.id);
+                if(filter.length > 0){
+                    parsed_cart.forEach(product => {
+                        if(product.id == new_product.id){
+                            product.qty += 1;
+                        }
+                    });
+                }else{
+                    new_product.qty = 1;
+                    parsed_cart.push(new_product);
+                }
+                
+                let string_cart = JSON.stringify(parsed_cart);
+                localStorage.setItem('cart', string_cart);
+                axilInit.updateCart();
+                e.preventDefault();
+            });
+        },
+        updateCart: function() {
+            let cart_storage = localStorage.getItem('cart');
+            let parsed_cart = cart_storage ? JSON.parse(cart_storage) : [];
+            $('#cart-item-list').html('');
+            parsed_cart.forEach(product => {
+                let product_content = `<div class="item-img">
+                    <a href="single-product.html"><img src="${product.image}" alt="Commodo Blown Lamp"></a>
+                    <button class="close-btn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="item-content">
+                    <h3 class="item-title"><a href="single-product-3.html">${product.title}</a></h3>
+                    <div class="item-price"><span class="currency-symbol">$</span>${product.price}</div>
+                    <div class="pro-qty item-quantity">
+                        <span class="dec qtybtn">-</span>
+                        <input type="number" class="quantity-input" value="${product.qty}">
+                        <span class="inc qtybtn">+</span>
+                    </div>
+                </div>`;
+                let el = $("<li></li>"); 
+                el.attr('class', 'cart-item');
+                el.html(product_content);
+                $('#cart-item-list').append(el);
+            });
+            
+            axilInit.quantityRanger();
+        }
     }
     axilInit.i();
 

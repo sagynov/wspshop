@@ -36,7 +36,7 @@ add_action('wp_footer', 'custom_js');
 
 function navbar_menu() {
     register_nav_menu('my-header-menu',__( 'My Header Menu' ));
-  }
+}
 add_action( 'init', 'navbar_menu' );
 
 function wpdocs_custom_dropdown_class( $classes ) {
@@ -48,18 +48,30 @@ add_filter( 'nav_menu_submenu_css_class', 'wpdocs_custom_dropdown_class' );
 /* Custom Post Type Start */
 
 function create_posttype() {
-    register_post_type( 'products',
-    array(
-      'labels' => array(
-       'name' => __( 'Товары'),
-       'singular_name' => __( 'Товар')
-      ),
-      'public' => true,
-      'has_archive' => false,
-      'rewrite' => array('slug' => 'products'),
-        'taxonomies'  => array( 'category' )
-     )
+    register_post_type( 'products',  array(
+        'labels' => array(
+          'name' => __( 'Товары'),
+          'singular_name' => __( 'Товар')
+        ),
+        'public' => true,
+        'has_archive' => true,
+        'rewrite' => array('slug' => 'products'),
+      )
     );
+    register_taxonomy('product_categories', array('products'), array(
+      'hierarchical' => false,
+      'labels' => array(
+        'name' => __( 'Категории'),
+        'singular_name' => __( 'Категория'),
+        'menu_name' => __( 'Категории' ),
+      ),
+      'show_ui' => true,
+      'show_in_rest' => true,
+      'show_admin_column' => true,
+      'update_count_callback' => '_update_post_term_count',
+      'query_var' => true,
+      'rewrite' => array( 'slug' => 'product_categories' ),
+    ));
 }
 // Hooking up our function to theme setup
 add_action( 'init', 'create_posttype' );    

@@ -15,7 +15,8 @@
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
     <![endif]-->
     <a href="#top" class="back-to-top" id="backto-top"><i class="fal fa-arrow-up"></i></a>
-    <header class="header axil-header header-style-1">
+    <header class="header axil-header <?php echo is_front_page() ? 'header-style-1' : 'header-style-5' ?>">
+        <?php if (is_front_page()): ?>
         <div class="header-top-campaign">
             <div class="container position-relative">
                 <div class="campaign-content">
@@ -24,11 +25,12 @@
             </div>
             <button class="remove-campaign"><i class="fal fa-times"></i></button>
         </div>
+        <?php endif; ?>
         <div class="axil-header-top">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-sm-6">
-                        <div class="header-top-link">
+                        <div class="header-top-link header-top-dropdown">
                             <ul style="justify-content: flex-start;" class="quick-link">
                                 <li><a href="#">Доставка и оплата</a></li>
                                 <li><a href="sign-up.html">Скидки и акции</a></li>
@@ -53,10 +55,10 @@
             <div class="container">
                 <div class="header-navbar">
                     <div class="header-brand">
-                        <a href="index.html" class="logo logo-dark">
+                        <a href="/" class="logo logo-dark">
                             <img src="<?= get_template_directory_uri(); ?>/assets/images/logo/logo.png" alt="Site Logo">
                         </a>
-                        <a href="index.html" class="logo logo-light">
+                        <a href="/" class="logo logo-light">
                             <img src="<?= get_template_directory_uri(); ?>/assets/images/logo/logo-light.png" alt="Site Logo">
                         </a>
                     </div>
@@ -65,7 +67,7 @@
                         <nav class="mainmenu-nav">
                             <button class="mobile-close-btn mobile-nav-toggler"><i class="fas fa-times"></i></button>
                             <div class="mobile-nav-brand">
-                                <a href="index.html" class="logo">
+                                <a href="/" class="logo">
                                     <img src="<?= get_template_directory_uri(); ?>/assets/images/logo/logo.png" alt="Site Logo">
                                 </a>
                             </div>
@@ -89,7 +91,7 @@
                             </li>
                             <li class="shopping-cart">
                                 <a href="#" class="cart-dropdown-btn">
-                                    <span class="cart-count">3</span>
+                                    <span id="cart-count" class="cart-count">0</span>
                                     <i class="flaticon-shopping-cart"></i>
                                 </a>
                             </li>

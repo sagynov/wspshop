@@ -44,8 +44,8 @@
             axilInit.axilMasonary();
             axilInit.counterUpActivation();
             axilInit.scrollSmoth();
-            axilInit.cartStorage();
-            axilInit.updateCart()
+            axilInit.addProduct();
+            axilInit.updateCart();
            
         },
 
@@ -213,26 +213,6 @@
             $('#amount').val('$' + $('#slider-range').slider('values', 0) +
                 '  $' + $('#slider-range').slider('values', 1));
 
-        },
-
-        quantityRanger: function() {
-            // $('.pro-qty').prepend('<span class="dec qtybtn">-</span>');
-            // $('.pro-qty').append('<span class="inc qtybtn">+</span>');
-            $('.qtybtn').on('click', function() {
-                var $button = $(this);
-                var oldValue = $button.parent().find('input').val();
-                if ($button.hasClass('inc')) {
-                    var newVal = parseFloat(oldValue) + 1;
-                } else {
-                    // Don't allow decrementing below zero
-                    if (oldValue > 0) {
-                        var newVal = parseFloat(oldValue) - 1;
-                    } else {
-                        newVal = 0;
-                    }
-                }
-                $button.parent().find('input').val(newVal);
-            });
         },
 
         axilSlickActivation: function(e) {
@@ -986,7 +966,55 @@
                 event.preventDefault();
             });
         },
-        cartStorage: function(){
+
+        quantityRanger: function() {
+            // $('.pro-qty').prepend('<span class="dec qtybtn">-</span>');
+            // $('.pro-qty').append('<span class="inc qtybtn">+</span>');
+            $('.qtybtn').on('click', function() {
+                var $button = $(this);
+                var id = $button.parent().find('input').data('id');
+                var oldValue = $button.parent().find('input').val();
+                if ($button.hasClass('inc')) {
+                    var newVal = parseFloat(oldValue) + 1;
+                } else {
+                    // Don't allow decrementing below zero
+                    if (oldValue > 0) {
+                        var newVal = parseFloat(oldValue) - 1;
+                    } else {
+                        newVal = 0;
+                    }
+                }
+                let cart_storage = localStorage.getItem('cart');
+                let parsed_cart = cart_storage ? JSON.parse(cart_storage) : [];
+                if(newVal > 0){
+                    parsed_cart.forEach(product => {
+                        if(product.id == id){
+                            product.qty = newVal;
+                        }
+                    });
+                }else{
+                    parsed_cart = parsed_cart.filter(product => product.id != id);
+                }
+                let string_cart = JSON.stringify(parsed_cart);
+                localStorage.setItem('cart', string_cart);
+                axilInit.updateCart();
+                // $button.parent().find('input').val(newVal);
+            });
+        },
+
+        deleteProduct: function(e) {
+            $('.remove-from-cart').on('click', function(e) {
+                let id = $(this).data('id');
+                let cart_storage = localStorage.getItem('cart');
+                let parsed_cart = cart_storage ? JSON.parse(cart_storage) : [];
+                parsed_cart = parsed_cart.filter(product => product.id != id);
+                let string_cart = JSON.stringify(parsed_cart);
+                localStorage.setItem('cart', string_cart);
+                axilInit.updateCart();
+            });
+        },
+
+        addProduct: function(){
             $('.product-toCart').on('click', function(e) {
                 let new_product = $(this).data();
                 let cart_storage = localStorage.getItem('cart');
@@ -1009,31 +1037,60 @@
                 e.preventDefault();
             });
         },
+
         updateCart: function() {
             let cart_storage = localStorage.getItem('cart');
             let parsed_cart = cart_storage ? JSON.parse(cart_storage) : [];
             $('#cart-item-list').html('');
+            $('#cart-item-table').html('');
+            let counter = 0;
+            var amount = 0;
             parsed_cart.forEach(product => {
+                counter += product.qty;
+                amount += product.qty * product.price;
                 let product_content = `<div class="item-img">
                     <a href="single-product.html"><img src="${product.image}" alt="Commodo Blown Lamp"></a>
-                    <button class="close-btn"><i class="fas fa-times"></i></button>
+                    <button data-id="${product.id}" class="close-btn remove-from-cart"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="item-content">
                     <h3 class="item-title"><a href="single-product-3.html">${product.title}</a></h3>
-                    <div class="item-price"><span class="currency-symbol">$</span>${product.price}</div>
+                    <div class="item-price"><span class="currency-symbol"><i class="fas fa-tenge"></i> </span><span class="product-qty-price">${product.qty * product.price}</span></div>
                     <div class="pro-qty item-quantity">
                         <span class="dec qtybtn">-</span>
-                        <input type="number" class="quantity-input" value="${product.qty}">
+                        <input type="number" data-id="${product.id}" class="quantity-input" value="${product.qty}">
                         <span class="inc qtybtn">+</span>
                     </div>
                 </div>`;
-                let el = $("<li></li>"); 
+                let el = $("<li></li>");
                 el.attr('class', 'cart-item');
                 el.html(product_content);
                 $('#cart-item-list').append(el);
+                // Cart Item table
+                let product_row = `
+                    <td class="product-remove"><a href="#" data-id="${product.id}" class="remove-wishlist remove-from-cart"><i class="fal fa-times"></i></a></td>
+                    <td class="product-thumbnail"><a href="single-product.html"><img src="${product.image}" alt="Digital Product"></a></td>
+                    <td class="product-title"><a href="single-product.html">Wireless PS Handler</a></td>
+                    <td class="product-price" data-title="Price"><span class="currency-symbol"><i class="fas fa-tenge"></i> </span>${product.price}</td>
+                    <td class="product-quantity" data-title="Qty">
+                        <div class="pro-qty"><span class="dec qtybtn">-</span>
+                            <input type="number" data-id="${product.id}" class="quantity-input" value="${product.qty}">
+                        <span class="inc qtybtn">+</span></div>
+                    </td>
+                    <td class="product-subtotal" data-title="Subtotal"><span class="currency-symbol"><i class="fas fa-tenge"></i> </span><span class="product-qty-price">${product.qty * product.price}</span></td>
+                `;
+                let row = $("<tr></tr>"); 
+                row.html(product_row);
+                $('#cart-item-table').append(row); 
+            });
+            $('.amount-number').text(amount);
+            $('.amount-number').counterUp({
+                delay: 10,
+                time: 500
             });
             
+            $('#cart-count').text(counter);
             axilInit.quantityRanger();
+            axilInit.deleteProduct();
         }
     }
     axilInit.i();
